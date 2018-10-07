@@ -3,7 +3,8 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.zhangliangming'
 
 android {
-    compileSdkVersion 26
+    buildToolsVersion '28.0.2'
+    compileSdkVersion 28
 
 
 

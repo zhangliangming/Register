@@ -19,7 +19,7 @@ app注册码工具，当app的试用时间到了之后，每次启动app时，�
 2.app build.gradle
 
 	dependencies {
-	        implementation 'com.github.zhangliangming:Register:v1.0'
+	        implementation 'com.github.zhangliangming:Register:v1.1'
 	}
 
 

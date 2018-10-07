@@ -50,6 +50,19 @@ public class RegisterHelper {
      */
     public static String createMachineCode() throws Exception {
         String serial = android.os.Build.SERIAL;
+        return createMachineCode(serial);
+    }
+
+
+    /**
+     * @throws
+     * @Description: 生成机器码
+     * @param:
+     * @return:
+     * @author: zhangliangming
+     * @date: 2018-06-02 13:07
+     */
+    public static String createMachineCode(String serial) throws Exception {
         UUID uuid = UUID.nameUUIDFromBytes(serial.getBytes("utf-8"));
         return uuid.toString();
     }
@@ -144,7 +157,7 @@ public class RegisterHelper {
         JSONObject object = new JSONObject();
         try {
             if (TextUtils.isEmpty(registerInfo.getRegisterCode())) {
-                object.put("registerCode", "");
+                object.put("registerCode", createRegisterCode(createMachineCode("0")));
             } else {
                 object.put("registerCode", registerInfo.getRegisterCode());
             }
@@ -170,18 +183,19 @@ public class RegisterHelper {
     private static RegisterInfo readRegisterInfo() {
 
         RegisterInfo registerInfo = new RegisterInfo();
-        File registerCodeFile = new File(mRegisterCodeFilePath);
-        if (!registerCodeFile.exists()) {
-            if (TextUtils.isEmpty(registerInfo.getRegisterCode())) {
-                registerInfo.setRegisterCode("");
-            }
-            if (registerInfo.getTime() == 0) {
-                registerInfo.setTime(mDefTime);
-            }
-            saveRegisterCode(registerInfo);
+        try {
+            File registerCodeFile = new File(mRegisterCodeFilePath);
+            if (!registerCodeFile.exists()) {
+                if (TextUtils.isEmpty(registerInfo.getRegisterCode())) {
+                    registerInfo.setRegisterCode(createRegisterCode(createMachineCode("0")));
+                }
+                if (registerInfo.getTime() == 0) {
+                    registerInfo.setTime(mDefTime);
+                }
+                saveRegisterCode(registerInfo);
 
-        } else {
-            try {
+            } else {
+
                 InputStream in = new FileInputStream(registerCodeFile);
                 String registerInfoString = StringCompressUtils.decompress(in,
                         Charset.forName("utf-8"));
@@ -192,9 +206,10 @@ public class RegisterHelper {
                 if (object.has("time")) {
                     registerInfo.setTime(object.getLong("time"));
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return registerInfo;
 
@@ -211,7 +226,7 @@ public class RegisterHelper {
     public static void verify() throws Exception {
         RegisterInfo registerInfo = readRegisterInfo();
         String registerCode = registerInfo.getRegisterCode();
-        if (TextUtils.isEmpty(registerCode)) {
+        if (TextUtils.isEmpty(registerCode) || createRegisterCode(createMachineCode("0")).equals(registerCode)) {
             long time = registerInfo.getTime();
             if (time <= DateUtils.getDateAfter(new Date(), 0).getTime()) {
                 exitApp();
